@@ -1,0 +1,5 @@
+(executable
+ (name main)
+ ; (libraries ocaml99 ounit2 qcheck)
+ ; (flags (:standard -w -27 -warn-error -27))
+ ) 

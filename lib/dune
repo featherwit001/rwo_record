@@ -1,0 +1,6 @@
+(library
+ (name row_examples)
+ ; (public_name ocaml99 )
+ ; (libraries unix num)
+ ; (flags (-g :standard -w -27 -warn-error -27-32))
+) 
