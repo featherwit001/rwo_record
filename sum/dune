@@ -1,5 +1,5 @@
 (executable
- (name main)
- ; (libraries ocaml99 ounit2 qcheck)
+ (name sum)
+ (libraries base stdio)
  ; (flags (:standard -w -27 -warn-error -27))
  ) 
