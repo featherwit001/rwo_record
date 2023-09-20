@@ -1,6 +1,8 @@
 (library
  (name rwo_examples)
  ; (public_name ocaml99 )
- (libraries base)
- (flags (-g :standard  -warn-error -27-32))
+ (libraries base core_bench re unix ppx_jane)
+ (flags (:standard -g -w -4-32-33-34-40-42-42-43-44-70 -warn-error -27-32))
+  (preprocess (pps ppx_jane))
+ ; -w @A-4-33....
 ) 

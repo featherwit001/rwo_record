@@ -1,0 +1,5 @@
+(executable
+ (name main)
+ (libraries base stdio)
+ ; (flags (:standard -w -27 -warn-error -27))
+ ) 

@@ -12,6 +12,14 @@ let lst2 = List.map (fun x -> x) ['a'; 'b']
 (* let foo f = (
    f [1; 2; 3], f [true; false]) *)
 
+
+
+let f x = x
+let g x = x
+let h x = x
+
+let x = f @@ g @@ h @@ 1  
+
 open Base
 
 let ratio x y =
@@ -66,10 +74,11 @@ let rrr x = {
   
 let ra = rrr 1
 
-let ( $! ) x = x.rr
+(* prefix *)
+let ( !& ) x = x.rr
 
-let a = ($!) ra
 
+let a = !& ra 
 let ( $:= ) x a  = x.rr <- a
 
 
@@ -82,5 +91,30 @@ let zzz =  ($$$) 1 3 4
 let zzz' = 3 $$$ 1
 let zzz'' = (3 $$$ 1) 3
 
-let ( $$ ) a b = a + b
-let zz =  1 $$ 3 
+let ( #$ ) a b = a + b
+let zz =  1 #$ 3 
+
+(* + - * / % < = > | & @ ^ $       . : ! ? ~  *)
+(* could not start with . : ! ? ~ *)
+
+let x = 1 lsl 2
+
+let f = (-) 1
+
+
+let ( ?+ ) a = -a
+
+let x = ?+ a 
+
+
+let ( ~+ ) a = -a
+
+let x = ~+ a 
+
+let f x = x
+let g x = x
+let h x = x
+
+let x = f @@ g @@ h 1
+(* or *)
+let x = f @@ g @@ h @@ 1
