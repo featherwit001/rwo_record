@@ -1,0 +1,4 @@
+(library 
+ (name double_linked)
+ (libraries base)
+ (flags (:standard -g -w -4-32-33-34-40-42-42-43-44-70)))
