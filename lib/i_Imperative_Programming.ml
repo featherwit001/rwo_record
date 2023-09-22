@@ -52,3 +52,32 @@ let lazy_test () =
   let x = our_force our_lazy_v in
   (v, x)
 
+let res =   
+let x = lazy(Float.sin 120.) in
+let y = lazy(Float.sin 75.) in
+let z = lazy(Float.sin 128.) in
+List.exists ~f:(fun x -> Float.O.(Lazy.force x < 0.)) [x; y; z]
+
+
+(* let remember =
+  let cache = ref None in
+  (fun x ->
+     match !cache with
+     | Some y -> y
+     | None -> cache := Some x; x)
+
+    
+let cache = ref None 
+
+let id x = x
+let f = fun x -> [x; x]
+let idf = id (fun x -> [x; x])
+
+let lls = List.init
+
+let list_init_10 = List.init 10
+let list_init_10 ~f = List.init 10 ~f
+
+
+let idemptylst = id []
+let idemptyarr = id [||] *)
