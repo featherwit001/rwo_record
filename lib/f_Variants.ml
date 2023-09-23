@@ -70,6 +70,8 @@ let rec eval expr base_eval =
   | Or exprs -> List.exists exprs ~f:eval'
   | Not expr -> not (eval' expr)
 
+
+(* marked! *)
 let and_ l =
   if List.exists l ~f:(function Const false -> true | _ -> false)
   then Const false
