@@ -194,7 +194,7 @@ let test2 () = flexible_find ~f:(fun x -> x > 10) [1;2;5] (Default_to 10)
 let test3 () = flexible_find ~f:(fun x -> x > 10) [1;2;20] Raise
 
 
-
+(* catch unknown *)
 type stringable =
   Stringed : {value : 'a; to_string: 'a -> string} -> stringable
 
@@ -207,7 +207,9 @@ let stringables =
 
 (* the type of underlying values can't escape the scope of stringable *)
 (* let get_value (Stringed s) = s.value *)
+(* how to get the internal data???? *)
 
+(* combinator *)
 module type Pipeline = sig
   type ('input, 'output) t
   
@@ -272,3 +274,44 @@ let exec_with_profile pipeline input =
       let elapsed = Time_ns.diff (Time_ns.now ()) start in
       loops tail output (elapsed :: span)
   in loops pipeline input [] 
+
+
+
+(* narrow the possibility *)
+type incomplete = Incomplete
+type complete = Compelete  
+
+type (_, _) coption =
+  | Absent : (_, incomplete) coption
+  | Present : 'a -> ('a, _) coption
+
+let get ~default o =
+  match o with
+  | Present x -> x
+  | Absent -> default
+
+let get' (o : (_, complete) coption) =
+  match o with
+  | Present x -> x
+  
+let get'' (Present x : (_, complete) coption) = x
+
+type 'c logon_request = {
+  user_name : string ;
+  user_id : (int, 'c) coption ;
+  permission : (bool, 'c) coption ;
+}
+
+let set_user_id request x = {request with user_id = Present x}
+
+let set_permissions request x = {request with permission = Present x}
+
+let check_completeness request : complete logon_request option =
+  match request.user_id, request.permission with
+  | Absent, _ | _, Absent -> None
+  | (Present _ as user_id) , (Present _ as permission) ->
+    Some {request with user_id; permission}
+
+let authorized (request : complete logon_request) =
+  let {user_id = Present user_id; permission = Present permission; _} = request in
+    check_completeness user_id 
