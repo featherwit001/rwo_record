@@ -167,7 +167,7 @@ module If_not_found = struct
   (* type ('a, 'b) t = *)
   type (_, _) t = 
     | Raise : ('a, 'a) t
-    | Return_none : ('a, 'a option) t
+    | Return_none : ('a, 'a option) t 
     | Default_to : 'a -> ('a, 'a) t
 end
 
@@ -278,8 +278,28 @@ let exec_with_profile pipeline input =
 
 
 (* narrow the possibility *)
+
+(* have to expose the difference of two type *)
+module M : sig 
 type incomplete = Incomplete
 type complete = Compelete  
+end = struct 
+  type incomplete = Incomplete
+  type complete = Compelete  
+end 
+
+include M
+
+(* module N : sig 
+  type incomplete = Z
+  type complete = Z 
+  end = struct 
+    type incomplete = Z
+    type complete = incomplete = Z
+  end 
+  
+include N *)
+
 
 type (_, _) coption =
   | Absent : (_, incomplete) coption
@@ -312,6 +332,55 @@ let check_completeness request : complete logon_request option =
   | (Present _ as user_id) , (Present _ as permission) ->
     Some {request with user_id; permission}
 
-let authorized (request : complete logon_request) =
-  let {user_id = Present user_id; permission = Present permission; _} = request in
-    check_completeness user_id 
+type nothing = |
+(* Base.Nothing.t *)
+
+let print_result (x : (int, Nothing.t) Result.t) =
+  match x with
+  | Ok x -> printf "%d\n" x
+  | Error _ -> .
+(* we believe this branch can never be reached. and OCaml verify that it's ture*)
+let print_result (x : (int, Nothing.t) Result.t) =
+  match x with
+  | Ok x -> printf "%d\n" x
+
+type _ number_kind = 
+  | Int : int -> int number_kind
+  | Float : float number_kind
+[@@deriving sexp_of]
+(* [@@deriving sexp] error *)
+
+type packed_number_kind = P : _ number_kind -> packed_number_kind
+
+type simple_number_kind = Int of int| Float [@@deriving of_sexp]
+
+let simple_number_kind_to_packed_number_kind kind :
+  packed_number_kind
+  =
+  match kind with
+  | Int i -> P (Int i)
+  | Float -> P Float
+
+let number_kind_of_sexp sexp =
+  simple_number_kind_of_sexp sexp
+  |> simple_number_kind_to_packed_number_kind
+(* 手动装配 *)
+
+
+(* 
+  GADT enalbes the variant type parameter to be different 
+  so that could contain more type information and use existential typpes which is 
+  writtern in the RWO.
+  In my opinion, it is difficult to think about and use GADT
+  the difference between GADT and ADT is 
+  not on the difference type parameters of each case
+  but on the variant type parameters.
+  i.e. the variant can have the same number and different type parameter 
+  such as (int, string) mygadt (int, int) mygadt ... 
+    
+  when can we use GADT?
+  Thanks to the variable type parameters of variants, 
+  we can improve the code reuse code directly rather than by adding phontom type.
+
+  
+*) 
