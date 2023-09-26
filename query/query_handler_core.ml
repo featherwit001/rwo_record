@@ -125,7 +125,7 @@ let rec cli dispatch_table =
 let unique_instance = build_instance (module Unique) 0;;
 let list_dir_instance = build_instance (module List_dir) "/var";;
 
-module Loader = struct
+module Loader  = struct
   type config = (module Query_handler) list [@sexp.opaque]
   [@@deriving sexp]
 
@@ -134,7 +134,7 @@ module Loader = struct
     active : (module Query_handler_instance) String.Table.t
   }
 
-  let name = "loader"
+  let name = "loader" 
 
   let create known_list =
     let active = String.Table.create () in
@@ -153,11 +153,7 @@ module Loader = struct
       | None ->
         Or_error.error "Unknown handler" handler_name String.sexp_of_t
       | Some (module Q : Query_handler) ->
-        let instance =
-          (module struct
-            module Query_handler = Q
-            let this = Q.create (Q.config_of_sexp config)
-          end : Query_handler_instance)
+        let instance = build_instance (module Q) (Q.config_of_sexp config)
         in
         Hashtbl.set t.active ~key:handler_name ~data:instance;
         Ok Sexp.unit 

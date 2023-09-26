@@ -209,3 +209,4 @@ let rec cli dispatch_table =
       cli dispatch_table
 
 let () = cli (build_dispatch_table [unique_instance; list_dir_instance])
+

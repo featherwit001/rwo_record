@@ -81,7 +81,7 @@ module String_pair = struct
 end
 
 (* in the utop, #require "ppx_jane";; could evaluate String_pair ahead of using *)
-let edit_distance = memo_rec (module String_pair)
+(* let edit_distance = memo_rec (module String_pair)
     (fun edit_distance (s,t) ->
        match String.length s, String.length t with
        | (0,x) | (x,0) -> x
@@ -95,5 +95,5 @@ let edit_distance = memo_rec (module String_pair)
            [ edit_distance (s',t ) + 1
            ; edit_distance (s ,t') + 1
            ; edit_distance (s',t') + cost_to_drop_both
-  ])
+  ]) *)
 
