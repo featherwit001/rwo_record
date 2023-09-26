@@ -10,6 +10,8 @@ module New_three = (val three : X_int)
 let x = New_three.x
 
 
+
+
 let to_int m =
   let module M = (val m : X_int) in
   M.x
@@ -43,6 +45,24 @@ end
 
 let int_bumper = (module Int_bumper : Bumpable with type t = int)
 let float_bumper = (module Float_bumper : Bumpable with type t = float)
+
+
+module type Bumpable' = sig
+  type t
+  type k
+  val bump : t -> t
+end
+
+module Int_float_bumper = struct
+  type t = int
+  type k = float
+  let bump n = n + 1
+end
+
+let int_float_bumper = 
+  (module Int_float_bumper 
+    : Bumpable' with type t = int and type k = float)
+
 let res3 = 
   let (module Bumper) = int_bumper in
   Bumper.bump 3
@@ -208,5 +228,4 @@ let rec cli dispatch_table =
       printf "%s\n%!" msg;
       cli dispatch_table
 
-let () = cli (build_dispatch_table [unique_instance; list_dir_instance])
-
+(* let () = cli (build_dispatch_table [unique_instance; list_dir_instance]) *)

@@ -122,9 +122,6 @@ let rec cli dispatch_table =
       printf "%s\n%!" msg;
       cli dispatch_table
 
-let unique_instance = build_instance (module Unique) 0;;
-let list_dir_instance = build_instance (module List_dir) "/var";;
-
 module Loader  = struct
   type config = (module Query_handler) list [@sexp.opaque]
   [@@deriving sexp]
