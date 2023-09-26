@@ -1,0 +1,4 @@
+(executables
+ (names query_handler loader_handler)
+ (libraries base core stdio core_unix.command_unix)
+ (preprocess (pps ppx_sexp_conv)))
