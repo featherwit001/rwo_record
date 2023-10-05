@@ -1,4 +1,5 @@
 (library
  (name dancelist)
  ; (libraries )
+ (flags (:standard -warn-error -27-32))
 )
