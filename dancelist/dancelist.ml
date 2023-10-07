@@ -8,8 +8,19 @@ type node = {
   mutable right: node ref option;
 }
 
-let nodes : node ref option array = Array.make 100 None
 
+type answer_node = {
+  ans : int array;
+  dep : int;
+  mutable next : answer_node ref option
+}
+
+type answers = {
+  mutable length : int;
+  mutable first : answer_node ref option
+}
+
+(* let nodes : node ref option array = Array.make 100 None *)
 type dancelist = {
   colen : int;
   rowlen : int;
@@ -21,6 +32,8 @@ type dancelist = {
   rows : node ref option array;
   (* answer is the row index list, index from 1 *)
   ans : int array;
+  mutable dep : int;
+  answers : answers;
 }
 let some = function
   | Some x -> x
@@ -57,9 +70,11 @@ let build rowlen colen =
     col_sz = Array.make (colen + 10) 0;
     rows = Array.make (rowlen + 10) None;
     ans = Array.make (rowlen + 10) 0;
+    dep = 0;
+    answers = {length = 0; first = None};
   } in
   (* register *)
-  nodes.(res.head.id) <- Some (ref res.head);
+  (* nodes.(res.head.id) <- Some (ref res.head); *)
   
   res.cols.(0) <- Some (ref res.head);
 
@@ -89,7 +104,7 @@ let insert row col dl : unit =
   let n = create_node ~row ~col () in
 
   (* register the node for easy access *)
-  nodes.(n.id) <- Some (ref n);
+  (* nodes.(n.id) <- Some (ref n); *)
   
   dl.col_sz.(col) <- dl.col_sz.(col) + 1;
 
@@ -118,19 +133,11 @@ let remove dl (c: node ref) : unit =
   (left c).right <- c.right;
   (right c).left <- c.left;
 
-  Printf.printf "after remove column\n";
   let i = ref (down c) in
   while !i != c do
     
-    Printf.printf "remove from row %d\n" !i.row;
     let j = ref (right !i) in
     while !j != !i do
-
-      Printf.printf "remove node id = %d row = %d col = %d\n" !j.id !j.row !j.col;
-      let jdown = (down !j) in
-      let jup = (up !j) in
-      Printf.printf "        node id = %d up = %d down = %d\n" !j.id jup.id jdown.id;
-
       (down !j).up <- !j.up;
       (up !j).down <- !j.down;
       dl.col_sz.(col !j) <- dl.col_sz.(col !j) - 1;
@@ -141,122 +148,64 @@ let remove dl (c: node ref) : unit =
     i := down !i;
   done
 
-
 let print_ref_address ref_var =
   let addr = Obj.magic ref_var in
-  Printf.printf "Reference address: %d\n" addr
-
-let recover' dl (c: node ref) : unit = 
-  let c = !c in
-
-  let i = ref (up c) in
-  while !i != c do
-    
-    let j = ref (left !i) in
-    while !j != !i do
-
-      (down !j).up <- Some j;
-      (up !j).down <- Some j;
-      dl.col_sz.(col !j) <- dl.col_sz.(col !j) + 1;
-      Printf.printf "      \027[38;5;2m[-]\027[0m n21 down = %d\n" (down !(some nodes.(21))).id;
-      Printf.printf "      update j to node %d\n" (left !j).id;
-      print_ref_address j;
-      print_ref_address (some !(some nodes.(21)).down);
-      j := left !j;
-      Printf.printf "      \027[38;5;1m[+]\027[0m n21 down = %d\n" (down !(some nodes.(21))).id;
-    done;
-
-    i := up !i;
-  done;
-  (left c).right <- c.right;
-  (right c).left <- c.left
-  
+  Printf.printf "Reference address: %d\n" addr 
 
 
 let recover dl (c : node ref) : unit =
   let c = !c in
-
   let i = ref (up c) in
-  (* Printf.printf "i init = node %d\n" !i.id; *)
   while !i != c do
-    (* Printf.printf "\n  i each = node %d\n" !i.id; *)
 
     let j = ref (left !i) in
-    (* Printf.printf "    j init = node %d\n" !j.id;
-    Printf.printf "    j ";
-    print_ref_address j; *)
-
     (while !j != !i do
-      (* Printf.printf "\n      j each = node %d\n" !j.id;
-      Printf.printf "      j ";
-      print_ref_address j;
-      Printf.printf "      n ";
-      print_ref_address (some !(some nodes.(21)).down);
-      Printf.printf "      write node %d down = %d\n" (up !j).id !j.id; *)
       (up !j).down <- Some (ref !j);
-      
-      (* Printf.printf "      write node %d up   = %d\n" (down !j).id !j.id; *)
       (down !j).up <- Some (ref !j);
-      
-      (* Printf.printf "      plus 1 in col %d size\n" !j.col; *)
       dl.col_sz.(!j.col) <- dl.col_sz.(!j.col) + 1;
 
-      (* Printf.printf "      \027[38;5;2m[-]\027[0m n21 down = %d\n" (down !(some nodes.(21))).id;
-      Printf.printf "      j ";
-      print_ref_address j;
-      Printf.printf "      n ";
-      print_ref_address (some !(some nodes.(21)).down); *)
-
-      (* Printf.printf "      update j to node %d\n" (left !j).id; *)
       j := !(some !j.left);
-
-      (* Printf.printf "      j ";
-      print_ref_address j;
-      Printf.printf "      n ";
-      print_ref_address (some !(some nodes.(21)).down);
-      Printf.printf "      \027[38;5;1m[+]\027[0m n21 down = %d\n" (down !(some nodes.(21))).id; *)
     done);
-    (* Printf.printf "    update i to node %d\n" (up !i).id; *)
     i := !(some !i.up)
   done;
 
-  (* Printf.printf "write node %d left = %d\n" (right c).id c.id; *)
   (right c).left <- Some (ref c);
-
-  (* Printf.printf "write node %d right = %d\n" (left c).id c.id; *)
   (left c).right <- Some (ref c)
 
+let record_ans dep dl= 
+  let ans_node = {
+    ans = Array.sub dl.ans 0 (dep + 1);
+    dep;
+    next = dl.answers.first;
+  } in
+  dl.answers.first <- Some (ref ans_node);
+  dl.answers.length <- dl.answers.length + 1
 
-let answer dep dl : unit = 
-  for i = 1 to dep do
-    Printf.printf "%d\n" dl.ans.(i);
-  done
 
-let rec dance dep dl =
-  Printf.printf "dep = %d\n" dep; 
 
-  if right dl.head == dl.head then (answer dep dl; true)
+let rec dance  ?(find_one=true) dep dl =
+  (* Printf.printf "\ndep = %d\n" dep;  *)
+
+  if right dl.head == dl.head then (record_ans dep dl; find_one)
   else begin
-    Printf.printf "try to solve int dep %d\n" dep; 
-
+    (* Printf.printf "try to solve int dep %d\n" dep;  *)
     let colmin = ref (right dl.head) in
-
-    let cur = colmin in
+    let cur = ref (right dl.head)  in
     while !cur != dl.head do
       (if colsz dl !cur < colsz dl !colmin then colmin := !cur);
+
       cur := right !cur
     done;
 
-    Printf.printf "before remove\n";
     remove dl colmin;
-    Printf.printf "after remove\n";
+    (* Printf.printf "removed col %d\n" !colmin.id; *)
 
     let find_one_ans = ref false in
     let i = ref (down !colmin)  in
     while !i != !colmin && not !find_one_ans do
       dl.ans.(dep) <- row !i;
       
-      Printf.printf "choose row %d\n" !i.row;
+      (* Printf.printf "choose row %d\n" !i.row; *)
 
       let j = ref (right !i) in
       while !j != !i do
@@ -264,7 +213,7 @@ let rec dance dep dl =
         j := right !j
       done;
 
-      (if dance (dep + 1) dl then find_one_ans := true);
+      (if dance (dep + 1) dl && find_one then find_one_ans := true);
       
       let j = ref (left !i) in
       while !j != !i do
@@ -275,8 +224,8 @@ let rec dance dep dl =
       i := down !i
     done;  
 
-    recover dl colmin;
-    !find_one_ans
+  recover dl colmin;
+  !find_one_ans
   end
 
 (* test *)
@@ -344,7 +293,6 @@ let to_array_by_row dl =
   done; 
   arr
 
-
 let to_array_by_rcol dl = 
   let rlen = dl.rowlen in
   let clen = dl.colen in
@@ -399,32 +347,35 @@ let of_array arr =
   done;
   dl
 
-let solver (arr : int array array)= 
-  let dl = of_array arr in
-  ignore (dance 1 dl)
-  (* failwith "todo" *)
+let print_rows ans dep =
+  Printf.printf "answer start:\n";
+  for i = 1 to dep - 1 do
+    Printf.printf "row %d\n" ans.(i)
+  done;
+  Printf.printf "answer end\n"
+
+let rec resolve_anss resolve_one (answer_node: answer_node ref option)  = 
+  match answer_node with
+  | None -> ()
+  | Some answer ->
+    resolve_one !answer.ans !answer.dep;
+    resolve_anss resolve_one !answer.next
+
+let resolve_dl  resolve_one dl : unit =
+  let answer_node = dl.answers.first in
+  match answer_node with
+  | None -> Printf.printf "no answer\n";
+  | Some _ as a-> 
+    Printf.printf "tot: %d answer(s)\n" dl.answers.length;
+    resolve_anss resolve_one a
 
 let test1 () =
-  solver arr
+  let dl = of_array arr in
+  ignore (dance 1 dl);
+  resolve_dl print_rows dl 
 
+let test_find_all ()=
+  let dl = of_array arr in
+  ignore (dance ~find_one:false 1 dl);
+  resolve_dl print_rows dl
 
-
-let dl = of_array arr
-
-let col1 = some dl.cols.(1)
-let n17 = (down !col1)
-
-let n18 = !(some n17.left) 
-let col3 = some dl.cols.(3)
-
-
-let col4 = !(some dl.cols.(4))
-let n21 = down col4
-let n18 = down n21
-let n12 = down n18
-
-
-let col7 = !(some dl.cols.(7))
-let n23 = down col7
-let n20 = down n23
-let n13 = down n20
