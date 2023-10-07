@@ -1,5 +1,12 @@
 (library
- (name dancelist)
+ (name dancelist )
  ; (libraries )
  (flags (:standard -warn-error -27-32))
 )
+
+
+; (executable
+;  (name test)
+;  ; (libraries )
+;  (flags (:standard -g -warn-error -27-32))
+; )
