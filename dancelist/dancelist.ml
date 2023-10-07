@@ -181,14 +181,68 @@ let record_ans dep dl=
   dl.answers.first <- Some (ref ans_node);
   dl.answers.length <- dl.answers.length + 1
 
+let make_space n =
+  String.make (n*4) ' '
 
+let to_id_array dl = 
+  let r = dl.rowlen in
+  let c = dl.colen in
+  let arr = Array.make_matrix (r + 1) c 0 in
+  let column = ref (right dl.head) in
+  while !column != dl.head do
+    arr.(!column.row).(!column.col - 1) <- !column.id;
+
+    let j = ref (down !column) in
+    while !j != !column do
+      arr.(!j.row).(!j.col - 1) <- !j.id;
+      j := down !j
+    done;
+    column := (right !column);
+  done; 
+  arr
+
+let colored_num n =
+  if n <> 0 then 
+    Printf.sprintf "\027[38;5;3m%-5d\027[0m " n
+  else Printf.sprintf "%-5d " n
+
+let arr_to_string arr =
+  let rlen = Array.length arr in
+  let clen = Array.length arr.(0) in
+  let res = ref "" in 
+  for i = 0 to rlen - 1 do
+    for j = 0 to clen - 1 do
+      res := !res ^ (colored_num arr.(i).(j));
+    done;
+    if i = 0 then res := !res ^ "\n" ^ (String.make (clen*5) '-');
+    res := !res ^ "\n";
+  done ;
+  !res
+
+let print_dl dl =
+  dl
+  |> to_id_array
+  |> arr_to_string  
+  |> print_endline
+
+let rows_in_column (col) =
+  let i = ref (down col) in
+  let res = ref "" in
+  while !i != col do
+    res := !res ^ (Printf.sprintf "%-3d " !i.row);
+    i := down !i;
+  done;
+  !res
 
 let rec dance  ?(find_one=true) dep dl =
-  (* Printf.printf "\ndep = %d\n" dep;  *)
+  (* Printf.printf "\n%sdep = %d find_one %b \n" (make_space (dep)) dep find_one; a *)
 
-  if right dl.head == dl.head then (record_ans dep dl; find_one)
+  if right dl.head == dl.head then (
+    (* Printf.printf "%s\027[38;5;4m[^]\027[0m find one answer\n" (make_space (dep)); *)
+    record_ans dep dl; 
+    find_one)
   else begin
-    (* Printf.printf "try to solve int dep %d\n" dep;  *)
+    (* Printf.printf "%stry to solve int dep %d\n" (make_space (dep)) dep;  *)
     let colmin = ref (right dl.head) in
     let cur = ref (right dl.head)  in
     while !cur != dl.head do
@@ -198,33 +252,48 @@ let rec dance  ?(find_one=true) dep dl =
     done;
 
     remove dl colmin;
-    (* Printf.printf "removed col %d\n" !colmin.id; *)
+    (* Printf.printf "%s\027[38;5;1m[-]\027[0m remove col %d\n" (make_space (dep)) !colmin.id; *)
+    (* Printf.printf "%scol %d has row %s\n" (make_space (dep)) !colmin.col (rows_in_column !colmin); *)
+
 
     let find_one_ans = ref false in
     let i = ref (down !colmin)  in
     while !i != !colmin && not !find_one_ans do
       dl.ans.(dep) <- row !i;
+      (* Printf.printf "%scould go to next loop : %b\n" (make_space (dep)) (not !find_one_ans); *)
+      (* Printf.printf "%s\027[38;5;4m[?]\027[0m choose row %d\n" (make_space (dep)) !i.row; *)
       
-      (* Printf.printf "choose row %d\n" !i.row; *)
+      (* Printf.printf "%sremove row %d elt\n" (make_space (dep)) !i.row; *)
 
       let j = ref (right !i) in
       while !j != !i do
         remove dl (column dl !j);
+        (* Printf.printf "%s\027[38;5;1m[-]\027[0m remove col %d\n" (make_space (dep)) (!j.col); *)
+        
         j := right !j
       done;
 
-      (if dance (dep + 1) dl && find_one then find_one_ans := true);
+      if dance ~find_one (dep + 1) dl && find_one then (
+          (* Printf.printf "%sModified out loop flag\n" (make_space (dep)); *)
+        find_one_ans := true);
       
       let j = ref (left !i) in
       while !j != !i do
         recover dl (column dl !j);
+        (* Printf.printf "%s\027[38;5;2m[+]\027[0m recover col %d\n" (make_space (dep)) (!j.col); *)
+
         j := left !j
       done;
 
-      i := down !i
-    done;  
+      (* Printf.printf "%srecover row %d elt\n" (make_space (dep)) !i.row; *)
 
+      i := down !i;
+      (* Printf.printf "%snext choosed row %d could go to next loop : %b \n" (make_space (dep)) !i.row (not !find_one_ans); *)
+    done;  
+  
   recover dl colmin;
+  (* Printf.printf "%s\027[38;5;2m[+]\027[0m recover col %d\n" (make_space (dep)) (!colmin.col); *)
+  
   !find_one_ans
   end
 
@@ -245,6 +314,19 @@ let arr = [|
   [|0; 1; 0; 0; 0; 0; 1|];
   [|0; 0; 0; 1; 1; 0; 1|];|]
 
+(* has 2 answers *)
+let arr' = [|
+  [|0; 0; 1; 0; 1; 1; 0|];
+  [|1; 0; 0; 1; 0; 0; 1|];
+  [|0; 1; 1; 0; 0; 1; 0|];
+  [|1; 0; 0; 1; 0; 0; 0|];
+  [|0; 1; 0; 0; 0; 0; 1|];
+  [|0; 0; 0; 1; 1; 0; 1|];
+  [|0; 0; 0; 0; 1; 0; 1|];
+|] 
+
+
+
 let to_array dl = 
   let r = dl.rowlen in
   let c = dl.colen in
@@ -260,20 +342,6 @@ let to_array dl =
   done; 
   arr
 
-let to_id_array dl = 
-  let r = dl.rowlen in
-  let c = dl.colen in
-  let arr = Array.make_matrix r c 0 in
-  for i = 1 to c do
-    let column = !(some dl.cols.(i)) in
-
-    let j = ref (down column) in
-    while !j != column do
-      arr.(!j.row - 1).(!j.col - 1) <- !j.id;
-      j := down !j
-    done
-  done; 
-  arr
 
 (* only for testing build  *)
 let to_array_by_row dl =
@@ -366,8 +434,10 @@ let resolve_dl  resolve_one dl : unit =
   match answer_node with
   | None -> Printf.printf "no answer\n";
   | Some _ as a-> 
+    (Printf.printf "tot: %d answer(s)\n" dl.answers.length;
+    resolve_anss resolve_one a;
     Printf.printf "tot: %d answer(s)\n" dl.answers.length;
-    resolve_anss resolve_one a
+    )
 
 let test1 () =
   let dl = of_array arr in
@@ -375,7 +445,7 @@ let test1 () =
   resolve_dl print_rows dl 
 
 let test_find_all ()=
-  let dl = of_array arr in
+  let dl = of_array arr' in
   ignore (dance ~find_one:false 1 dl);
   resolve_dl print_rows dl
 
