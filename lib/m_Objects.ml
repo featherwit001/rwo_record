@@ -264,10 +264,10 @@ let is_barbell = function
 
 
 type shape'' = < variant : repr >
-and circle = < variant : repr; radius : int >
+and circle' = < variant : repr; radius : int >
 and line   = < variant : repr; length : int >
 and repr = 
-  | Circle of circle
+  | Circle of circle'
   | Line of line
 
 (* do not provide much value here *)

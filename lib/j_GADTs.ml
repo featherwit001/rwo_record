@@ -88,6 +88,8 @@ let will_raise2 () = Typesafe_lang.bool_eval boolexpr
 
 
 (* first GADT *)
+(* the main functionality is making the type parameter of variants 
+   can be polymorphic. such as 'a value and 'b value both are _ value *)
 type _ value =
   | Int : int -> int value
   | Bool: bool -> bool value
@@ -118,7 +120,7 @@ let eval_value (type a) (v : a value) : a =
   | Int x -> x
   | Bool x -> x
 
-  (* error! *)
+  (* error!  inference of GADTs doesn't play well with recursive calls *)
 (* let rec eval (type a) (e : a expr) : a =
   match e with
   | Value v -> eval_value v
