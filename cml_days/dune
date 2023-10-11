@@ -1,0 +1,4 @@
+(executable
+  (name       days)
+  (libraries  core)
+  (preprocess (pps ppx_jane)))

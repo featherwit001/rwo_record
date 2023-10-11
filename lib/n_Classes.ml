@@ -575,8 +575,6 @@ module Initializers = struct
 end
 
 
-
-
 module Test_for_val = struct
   (* val define a field which could be function and value *)
   class value = object
