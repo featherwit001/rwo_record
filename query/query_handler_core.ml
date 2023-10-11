@@ -59,7 +59,8 @@ module List_dir = struct
         if is_abs dir then dir
         else Filename.concat t.cwd dir
       in
-      Ok (Array.sexp_of_t String.sexp_of_t (Sys_unix.readdir dir))
+      (* or Sys_unix *)
+      Ok (Array.sexp_of_t String.sexp_of_t (Sys.readdir dir))
 end
 
 

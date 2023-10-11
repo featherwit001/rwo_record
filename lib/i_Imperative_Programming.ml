@@ -5,7 +5,7 @@ let x = List.find_map
 let y = Array.blit 
 
 let b = Bytes.of_string "foobar"
-let _ = Bytes.set b 0 (Char.uppercase (Bytes.get b 0))
+let () = Bytes.set b 0 (Char.uppercase (Bytes.get b 0))
 let b = Bytes.to_string b
 
 

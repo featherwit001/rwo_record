@@ -1,4 +1,5 @@
 open Base
+open Core
 module type X_int = sig val x : int end
 module Three = struct let x = 3 end
 module Four = struct let x = 4 end
@@ -161,7 +162,8 @@ module List_dir = struct
         if is_abs dir then dir
         else Core.Filename.concat t.cwd dir
       in
-      Ok (Array.sexp_of_t String.sexp_of_t (Sys_unix.readdir dir))
+      (* or Sys_unix *)
+      Ok (Array.sexp_of_t String.sexp_of_t (Sys.readdir dir))
 end
 
 

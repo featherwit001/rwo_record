@@ -12,3 +12,34 @@ let () =
   Hashtbl.set loader.active
     ~key:Loader.name ~data:loader_instance;
   cli loader.active
+
+
+(* 
+>>> (loader known_services)        
+(ls loader unique)
+>>>  (loader active_services)      
+(loader)
+>>> (ls .)
+("Could not find matching handler" ls)
+>>> (loader (load ls /var))        
+()
+>>> (ls .)
+(metrics lock opt local tmp snap backups www spool crash cache log lib run
+ mail)
+>>>  (loader (unload loader))
+It's unwise to unload yourself
+
+
+>>> (loader (load unique 0))       
+()
+>>> (unique ())
+0
+>>> (unique ())
+1
+>>> (loader (unload unique))
+()
+>>> (unique ())
+("Could not find matching handler" unique)
+
+>>> quit
+*)

@@ -10,3 +10,4 @@ let list_max = function
 let () =
   printf "%d\n" (list_max [1;2;3]);
   printf "%d\n" (list_max [])
+(* OCAMLRUNPARAM=b=0 dune exec -- ./blow_up.exe *)
