@@ -139,6 +139,7 @@ let constrain row col v dl : unit=
   let f1 = (row - 1) * 9 + v in
   let f2 = 81 + (col - 1) * 9 + v in
   let f3 = 81 * 2 + (room - 1) * 9 + v in
+  (* f4 is necessary *)
   let f4 = 81 * 3 + (row - 1) * 9 + col in
   let dlrow = (row - 1) * 9 * 9 + (col - 1) * 9 + v in
   insert dlrow f1 dl;
@@ -212,11 +213,21 @@ let solve_sudoku_all su =
   dl
   |> resolve_dl resolve_one_sudoku
 
-
 let time f =
   let open Core in 
   let start = Time.now() in
   let x = f () in
   let stop = Time.now() in
-  Printf.printf "Time: %F ms\n" (Time.diff stop start |> Time.Span.to_ms);
+  Printf.printf "Time: %F ms\n\n" (Time.diff stop start |> Time.Span.to_ms);
   x
+
+let test3 () =
+  let sudokus = [sudoku1; sudoku2; sudoku3; sudoku4; sudoku5; sudoku6; sudoku7; 
+                sudoku8; ]
+  in 
+  let test su = time (fun () -> solve_sudoku_all su) in
+  let rec loop = function
+    | [] -> ()
+    | h :: t -> test h; loop t
+  in
+  loop sudokus 

@@ -235,7 +235,7 @@ let rows_in_column (col) =
   !res
 
 let rec dance  ?(find_one=true) dep dl =
-  (* Printf.printf "\n%sdep = %d find_one %b \n" (make_space (dep)) dep find_one; a *)
+  (* Printf.printf "\n%sdep = %d find_one %b \n" (make_space (dep)) dep find_one; *)
 
   if right dl.head == dl.head then (
     (* Printf.printf "%s\027[38;5;4m[^]\027[0m find one answer\n" (make_space (dep)); *)

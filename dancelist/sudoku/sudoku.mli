@@ -23,6 +23,8 @@ val resolve_one_sudoku : int array -> int -> unit
 
 (* test *)
 val test2 : unit -> unit
+val test3 : unit -> unit
+
 
 (** main interface *)
 val solve_sudoku : int array array -> unit

@@ -1,7 +1,7 @@
 (library
  (name sudoku)
  (libraries core dancelist)
- (flags (:standard -warn-error -27-32))
+ (flags (:standard -warn-error -27-26-32))
 )
 
 
