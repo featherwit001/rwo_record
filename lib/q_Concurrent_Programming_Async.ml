@@ -39,3 +39,30 @@ let res = Deferred.peek def
 
 let () = Ivar.fill ivar "Hello"
 let res = Deferred.peek def 
+
+
+(* 伪需求 *)
+module type Delayer_intf = sig
+  type t
+  val create : Time.Span.t -> t
+  val schedule : t -> (unit -> 'a Deferred.t) -> 'a Deferred.t
+end
+
+module Delayer : Delayer_intf = struct
+  type t = { delay: Time.Span.t;
+             jobs: (unit -> unit) Queue.t;
+           }
+
+  let create delay =
+    { delay; jobs = Queue.create () }
+
+  let schedule t thunk =
+    let ivar = Ivar.create () in
+    Queue.enqueue t.jobs (fun () ->
+      (* upon: 'a t -> ('a -> 'b) -> 'b t *)
+      upon (thunk ()) (fun x -> Ivar.fill ivar x));
+    upon (after t.delay) (fun () ->
+      let job = Queue.dequeue_exn t.jobs in
+      job ());
+    Ivar.read ivar
+end

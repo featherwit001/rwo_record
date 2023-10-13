@@ -1,0 +1,12 @@
+(executable
+ (name search)
+ (libraries core async cohttp-async yojson textwrap core_unix.command_unix)
+ (flags (:standard -g -w -4-32-33-34-40-42-42-43-44-70 -warn-error -27-32-7))
+ (preprocess (pps ppx_jane))
+ )
+
+
+; (menhir
+;  (modules ijson_parser))
+
+; (ocamllex ijson_lexer)
