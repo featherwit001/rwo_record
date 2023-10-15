@@ -1,0 +1,8 @@
+; (executable
+;   (name      shapes)
+;   (modules   shapes)
+;   (libraries async_graphics))
+
+
+; async_graphics's dependence is lower than the whole book requriement
+; so it have to modify

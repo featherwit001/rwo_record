@@ -74,7 +74,7 @@ let res = Map.Poly.of_alist_exn digit_alist
 
 (* syntax-extentions *)
 (* open Ppx_jane *)
-module Book = struct
+module Book''' = struct
   module T = struct
     type t = { title : string; isbn : string }
     [@@deriving compare, sexp_of]

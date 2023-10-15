@@ -15,4 +15,4 @@ let command =
     (Command.Param.map filename_param ~f:(fun filename () -> 
       do_hash filename))
 
-let () = Command.run ~version:"1.0" ~build_info:"RWO" command
+let basic_cml () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command

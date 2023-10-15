@@ -46,7 +46,7 @@ let commandv2' =
       hash_length = anon ("hash_length" %: int)
       and 
       (* pre-defined argument type *)
-      filename = anon ("filename" %: Filename.arg_type)
+      filename = anon ("filename" %: string)
     (* and path = anon ("path" %: string)  *)
     (* .... *)
     in
@@ -57,7 +57,7 @@ let commandv2' =
 (* define Argument Type *)
 let regular_file =
   Command.Arg_type.create (fun filename -> 
-    match Sys.is_file filename with
+    match Sys_unix.is_file filename with
     | `Yes -> filename
     | `No -> failwith "Not a regular file"
     | `Unknown -> 
@@ -93,7 +93,7 @@ let commandv4 =
     ~summary:"Generate an MD5 hash of the input data"
     ~readme:(fun () -> "More detailed information")
     (let%map_open.Command filename =
-       anon (maybe ("filename" %: Filename.arg_type))
+       anon (maybe ("filename" %: string))
      in
      fun () -> do_hashv4 filename)
 
@@ -113,7 +113,7 @@ Command.basic
   ~summary:"Generate an MD5 hash of the input data"
   ~readme:(fun () -> "More detailed information")
   (let%map_open.Command filename =
-    anon (maybe_with_default  "-" ("filename" %: Filename.arg_type))
+    anon (maybe_with_default  "-" ("filename" %: string))
   in
   fun () -> do_hashv5 filename)
 
@@ -130,7 +130,7 @@ let commandv6 =
     ~summary:"Generate an MD5 hash of the input data"
     ~readme:(fun () -> "More detailed information")
     (let%map_open.Command files =
-       anon (sequence ("filename" %: Filename.arg_type))
+       anon (sequence ("filename" %: string))
      in
      fun () ->
        match files with
@@ -158,7 +158,8 @@ let commandv7 =
     and
     trial = flag "-t" no_arg ~doc:"run a built-in time trial"
     and 
-    filename = anon (maybe_with_default "-" ("filename" %: Filename.arg_type))  
+    (* Filename.arge_type is deprecated, but not found Filename_unix *)
+    filename = anon (maybe_with_default "-" ("filename" %: string))  
   in
     fun () -> 
       if trial 

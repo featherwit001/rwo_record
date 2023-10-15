@@ -49,5 +49,4 @@ let command =
     ["add", add';
      "diff", diff]
 
-
-let () = Command.run command
+let () = Command_unix.run command

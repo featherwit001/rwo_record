@@ -364,7 +364,10 @@ end = struct
 end
 
 
-module Virtual = struct
+(* async_graphics need Core 14.0 but the whole book depends on Core 15.0 
+   包管理精确到版本号是很重要的 like Rust cargo.toml*)
+
+(* module Virtual = struct
   open Core
   open Async
   open Async_graphics
@@ -582,4 +585,4 @@ module Test_for_val = struct
   end
 
 end
-
+ *)

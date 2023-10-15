@@ -53,10 +53,10 @@ module Sys = Core.Sys
 module Filename = Core.Filename
  let rec ls_rec s =
   (* add _unix *)
-    if Sys.is_file_exn ~follow_symlinks:true s
+    if Sys_unix.is_file_exn ~follow_symlinks:true s
     then [s]
     else
-      Sys.ls_dir s
+      Sys_unix.ls_dir s
       |> List.concat_map ~f:(fun sub -> ls_rec (Filename.concat s sub))
 
 

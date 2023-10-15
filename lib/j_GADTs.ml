@@ -225,9 +225,9 @@ module Example_pipeline (Pipeline : Pipeline) = struct
   open Core
   let sum_file_sizes =
     (* add or remove _unix Core *)
-    (fun () -> Sys.ls_dir ".")
-    @> List.filter ~f:Sys.is_file_exn
-    @> List.map ~f:(fun file_name -> (Unix.lstat file_name).st_size)
+    (fun () -> Sys_unix.ls_dir ".")
+    @> List.filter ~f:Sys_unix.is_file_exn
+    @> List.map ~f:(fun file_name -> (Core_unix.lstat file_name).st_size)
     @> List.sum (module Int) ~f:Int64.to_int_exn
     @> empty
 
