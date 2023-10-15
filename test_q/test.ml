@@ -115,6 +115,8 @@ let gen_shape =
     Circle { radius }
   in
   let rect =
+    (* bind for ('a -> 'b t )
+       map  for ('a -> 'b   ) *)
     let%bind height = G.float_positive_or_zero in
     let%map width = G.float_inclusive height Float.infinity in
     Rect { height; width }

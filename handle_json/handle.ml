@@ -35,3 +35,9 @@ let () =
     | Some false -> "no" in
   printf "Online: %s\n" (string_of_bool_option is_online);
   printf "Translated: %s\n" (string_of_bool_option is_translated)
+
+(* add explicit type annotation can help compiler to check type *)
+let person : Yojson.Basic.t = `Assoc [ ("name" , `String "Anil")]
+let output1 () = Yojson.Basic.pretty_to_string person
+
+let output2 () = Yojson.Basic.pretty_to_channel stdout person
