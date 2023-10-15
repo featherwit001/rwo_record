@@ -1,0 +1,7 @@
+(library
+ (name test)
+ (libraries base core stdio lambdasoup uri)
+ (preprocess (pps ppx_jane))
+ (inline_tests)
+
+)
